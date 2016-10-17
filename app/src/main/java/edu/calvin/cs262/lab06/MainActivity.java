@@ -35,6 +35,24 @@ import java.util.List;
  *
  * @author kvlinden
  * @version summer, 2016
+ *
+ * Answers to questions by Kristofer Brink
+ *
+ * What does the application do for invalid cities?
+ *   The application makes a Toast that says, "Failed to connect to service..."
+ *
+ * What is the API key? What does it do?
+ *    An api is a application programming interface key and it identifies the calling program.
+ *
+ * What does the full JSON response look like?
+ *  It starts with the city and has the city name and coordinates. There is a lot more data that is not used by the program like pressure humidity and more.
+ *
+ * What does the system do with the JSON data?
+ *     For each day it takes the description and displays it to the user using a linear layout
+ *
+ * What is the Weather class designed to do?
+ *     The weather class is designed to store the information for displaying and for converting the day to a string of the day of the week on initialization.
+ *
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -153,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void convertJSONtoArrayList(JSONObject forecast) {
         weatherList.clear(); // clear old weather data
+        Log.v("x", forecast.toString());
         try {
             JSONArray list = forecast.getJSONArray("list");
             for (int i = 0; i < list.length(); i++) {
@@ -161,7 +180,10 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject weather = day.getJSONArray("weather").getJSONObject(0);
                 weatherList.add(new Weather(
                         day.getLong("dt"),
-                        weather.getString("description")));
+                        weather.getString("description"),
+                        temperatures.getString("min"),
+                        temperatures.getString("max")
+                ));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -180,12 +202,14 @@ public class MainActivity extends AppCompatActivity {
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("day", item.getDay());
             map.put("description", item.getSummary());
+            map.put("low", item.getLow());
+            map.put("high", item.getHigh());
             data.add(map);
         }
 
         int resource = R.layout.weather_item;
-        String[] from = {"day", "description"};
-        int[] to = {R.id.dayTextView, R.id.summaryTextView};
+        String[] from = {"day", "description", "low", "high"};
+        int[] to = {R.id.dayTextView, R.id.summaryTextView, R.id.low, R.id.high};
 
         SimpleAdapter adapter = new SimpleAdapter(this, data, resource, from, to);
         itemsListView.setAdapter(adapter);
